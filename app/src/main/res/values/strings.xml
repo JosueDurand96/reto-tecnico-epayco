@@ -1,3 +1,65 @@
 <resources>
-    <string name="app_name">Reto-tecnico-epayco</string>
+    <string name="app_name">Countries</string>
+
+    <string name="login_title">Bienvenido</string>
+    <string name="login_subtitle">Inicia sesión para continuar</string>
+    <string name="login_field_user">Usuario</string>
+    <string name="login_field_password">Contraseña</string>
+    <string name="login_action_sign_in">Iniciar sesión</string>
+    <string name="login_action_biometric">Iniciar sesión con biometría</string>
+    <string name="login_error_empty_fields">Completa usuario y contraseña.</string>
+
+    <string name="biometric_prompt_title">Autenticación biométrica</string>
+    <string name="biometric_prompt_subtitle">Usa tu huella, rostro u otro método configurado en el dispositivo</string>
+    <string name="biometric_prompt_negative">Cancelar</string>
+    <string name="biometric_msg_cancelled">Autenticación cancelada</string>
+    <string name="biometric_msg_failed">No se reconoció la biometría. Inténtalo de nuevo.</string>
+    <string name="biometric_msg_error_generic">No se pudo autenticar</string>
+
+    <string name="biometric_hint_no_hardware">Este dispositivo no tiene sensor biométrico. Puedes usar usuario y contraseña.</string>
+    <string name="biometric_hint_hw_unavailable">Hardware biométrico no disponible temporalmente. Usa el inicio de sesión manual.</string>
+    <string name="biometric_hint_none_enrolled">No hay huella ni rostro registrados. Configúralos en Ajustes del sistema o usa usuario y contraseña.</string>
+    <string name="biometric_hint_security_update">Se requiere actualización de seguridad del sistema para usar biometría.</string>
+    <string name="biometric_hint_unsupported">Este dispositivo no admite el tipo de biometría requerido.</string>
+    <string name="biometric_hint_unknown">No se pudo comprobar la biometría. Usa el inicio de sesión manual.</string>
+
+    <string name="screen_countries_title">Countries</string>
+    <string name="screen_favorites_title">Favorites</string>
+    <string name="screen_favorites_subtitle">Your saved countries</string>
+
+    <string name="tab_countries">Countries</string>
+    <string name="tab_favorites">Favorites</string>
+
+    <string name="search_placeholder">Search</string>
+
+    <string name="empty_countries">No countries match your search.</string>
+    <string name="empty_favorites">No favorites yet. Add countries from the list or detail screen.</string>
+
+    <string name="detail_back_label">&lt; Countries</string>
+    <string name="no_capital">—</string>
+
+    <string name="label_coat_of_arms">Coat of arms</string>
+    <string name="label_region">Region</string>
+    <string name="label_subregion">Subregion</string>
+    <string name="label_capital">Capital</string>
+    <string name="label_area">Area (km²)</string>
+    <string name="label_population">Population</string>
+    <string name="label_languages">Language(s)</string>
+    <string name="label_car_side">Car driver side</string>
+    <string name="label_currencies">Currencies</string>
+    <string name="label_timezones">Timezone(s)</string>
+
+    <string name="car_side_left">LEFT</string>
+    <string name="car_side_right">RIGHT</string>
+    <string name="value_unknown">—</string>
+
+    <string name="cd_tab_countries">Countries tab</string>
+    <string name="cd_tab_favorites">Favorites tab</string>
+    <string name="cd_search">Search</string>
+    <string name="cd_voice_search">Voice search</string>
+    <string name="cd_flag">Flag of %1$s</string>
+    <string name="cd_coat_of_arms">Coat of arms of %1$s</string>
+    <string name="cd_favorite_marker">Saved as favorite</string>
+    <string name="cd_back">Back</string>
+    <string name="cd_toggle_favorite">Toggle favorite</string>
 </resources>

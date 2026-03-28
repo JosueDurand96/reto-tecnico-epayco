@@ -1,6 +1,5 @@
 package com.example.reto_tecnico_epayco.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -9,35 +8,43 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 
+private val OnLight = Color(0xFFFFFFFF)
+
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = OceanBlue,
+    onPrimary = OnLight,
+    primaryContainer = OceanBlueDark,
+    onPrimaryContainer = OnLight,
+    secondary = Slate400,
+    onSecondary = Slate950,
+    surface = Slate950,
+    onSurface = OnLight,
+    surfaceContainer = Color(0xFF1E293B),
+    surfaceContainerHigh = Color(0xFF334155),
+    outline = OutlineSoft
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = OceanBlue,
+    onPrimary = OnLight,
+    primaryContainer = Color(0xFFE3F2FD),
+    onPrimaryContainer = OceanBlueDark,
+    secondary = Slate600,
+    onSecondary = OnLight,
+    surface = SurfaceLight,
+    onSurface = Slate950,
+    surfaceContainer = Color(0xFFFFFFFF),
+    surfaceContainerHigh = SurfaceMuted,
+    outline = OutlineSoft
 )
 
 @Composable
-fun RetotecnicoepaycoTheme(
+fun CountriesTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
