@@ -1,5 +1,11 @@
 package com.example.reto_tecnico_epayco.presentation.screens.list
 
+import android.app.Activity
+import android.content.Intent
+import android.speech.RecognizerIntent
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -15,6 +21,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,6 +35,7 @@ import com.example.reto_tecnico_epayco.presentation.components.CountrySearchFiel
 import com.example.reto_tecnico_epayco.presentation.state.CountriesListUiState
 import com.example.reto_tecnico_epayco.presentation.viewmodel.CountriesViewModel
 import com.example.reto_tecnico_epayco.ui.theme.CountriesTheme
+import java.util.Locale
 
 @Composable
 fun CountriesScreen(
@@ -35,6 +43,23 @@ fun CountriesScreen(
     modifier: Modifier = Modifier,
     viewModel: CountriesViewModel = hiltViewModel()
 ) {
+    val context = LocalContext.current
+    val notAvailableMsg = stringResource(R.string.voice_search_not_available)
+    val voicePrompt = stringResource(R.string.voice_search_prompt)
+
+    val voiceLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode != Activity.RESULT_OK) return@rememberLauncherForActivityResult
+        val spoken = result.data
+            ?.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS)
+            ?.firstOrNull()
+            ?.trim()
+        if (!spoken.isNullOrEmpty()) {
+            viewModel.onSearchQueryChange(spoken)
+        }
+    }
+
     val listState by viewModel.listState.collectAsStateWithLifecycle()
     val searchQuery by viewModel.searchQuery.collectAsStateWithLifecycle()
     val favoriteIds by viewModel.favoriteCca3Ids.collectAsStateWithLifecycle()
@@ -53,7 +78,22 @@ fun CountriesScreen(
         Spacer(modifier = Modifier.height(16.dp))
         CountrySearchField(
             query = searchQuery,
-            onQueryChange = viewModel::onSearchQueryChange
+            onQueryChange = viewModel::onSearchQueryChange,
+            onMicrophoneClick = {
+                val intent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+                    putExtra(
+                        RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                        RecognizerIntent.LANGUAGE_MODEL_FREE_FORM
+                    )
+                    putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault().toLanguageTag())
+                    putExtra(RecognizerIntent.EXTRA_PROMPT, voicePrompt)
+                }
+                if (intent.resolveActivity(context.packageManager) != null) {
+                    voiceLauncher.launch(intent)
+                } else {
+                    Toast.makeText(context, notAvailableMsg, Toast.LENGTH_SHORT).show()
+                }
+            }
         )
         Spacer(modifier = Modifier.height(16.dp))
         when (val state = listState) {

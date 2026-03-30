@@ -2,6 +2,97 @@
 
 Aplicación nativa en Kotlin que consume la API pública [REST Countries](https://restcountries.com/), permite explorar países, buscar con debounce, ver detalle y gestionar favoritos persistidos localmente. Pensada como entrega de prueba técnica con arquitectura limpia y stack moderno de Android.
 
+## Cumplimiento con la prueba técnica (documento Epayco)
+
+Referencia: requisitos del documento *Prueba Android Epayco* (objetivo, vistas, entrega).
+
+### Objetivo del documento
+
+Demostrar capacidad para **interactuar con APIs externas**, **gestionar el estado** de la aplicación y **persistir datos localmente**, con una UI intuitiva y alineada al diseño de referencia.
+
+### Requisitos funcionales
+
+| # | Requisito (PDF) | Cómo se cubre en el proyecto |
+|---|-----------------|------------------------------|
+| **1a** | Listado completo desde `https://restcountries.com/v3.1/all` | `GetAllCountriesUseCase` → `CountriesApiService.getAllCountries()` |
+| **1b** | Cada ítem con información esencial (nombre, bandera, etc.) y navegación al detalle | `CountryListItem` (nombre oficial, capital, bandera, escudo) + `onCountryClick` → ruta `detail/{cca3}` |
+| **1c** | Búsqueda con `https://restcountries.com/v3.1/name/{name}?fullText=false`; activación automática **tras el segundo carácter** | `CountriesViewModel`: umbral 2 caracteres + debounce; `searchByName(..., fullText = false)` |
+| **1d** | Favoritos claramente distinguibles en el listado | Icono de marcador cuando el `cca3` está en favoritos (`observeFavoriteCca3Ids`) |
+| **2a** | Detalle al seleccionar un país | `CountryDetailScreen` vía `NavHost` |
+| **2b** | Marcar/desmarcar favorito con control claro; persistencia entre sesiones | Icono de favorito en top bar + **Room** (`FavoriteCountryEntity`); datos del país guardados localmente |
+| **3a** | Barra inferior para alternar listado general / favoritos | `CountriesBottomBar`: pestañas Countries y Favorites |
+| **3b** | Desde favoritos, navegar al detalle | Misma ruta `detail/{cca3}` que desde el listado principal |
+
+### Requisitos técnicos y de diseño (PDF)
+
+| # | Requisito (PDF) | Enfoque adoptado |
+|---|-----------------|------------------|
+| **API** | Consumo eficiente y robusto; gestión de carga y errores de red | Retrofit + corrutinas; estados `Loading` / `Success` / `Empty` / `Error`; manejo de `IOException` / `HttpException` y 404 en búsqueda |
+| **Persistencia** | Mecanismo local apropiado para favoritos | **Room** (SQLite) con snapshot del país para uso **offline** en favoritos y detalle si aplica |
+| **Arquitectura** | Código limpio, modular y escalable (MVVM, Clean, etc.) | **Clean Architecture** (capas) + **MVVM** + **Repository** + **casos de uso** |
+| **UX/UI** | Fidelidad al diseño de referencia (screenshots) | Material 3, Compose, lista tipo tarjeta, detalle con rejilla de dos columnas, barra inferior |
+
+### Forma de entrega (recomendaciones del PDF)
+
+| Entregable | Notas |
+|------------|--------|
+| **Código fuente** | Repositorio público o `.zip`; nombre del repo sin revelar literalmente la solución de la prueba (recomendación del documento). |
+| **Video demostración (.mp4)** | Mostrar la app y argumentar decisiones: arquitectura, persistencia, API y errores, otras decisiones técnicas. |
+| **APK (recomendado)** | `assembleDebug` (o release firmado) para facilitar revisión. |
+
+---
+
+## Por qué estas tecnologías y patrones
+
+### Clean Architecture
+
+- **Capas** (`data`, `domain`, `presentation`): el dominio no depende de Android ni de Retrofit; los casos de uso orquestan reglas y el repositorio abstrae el origen de datos (red + Room).
+- **Beneficio**: pruebas más sencillas, cambios de API o de BD localizados, escalabilidad si el proyecto crece.
+
+### MVVM + ViewModel
+
+- **ViewModel** conserva estado ante rotaciones y navegación; la UI es una función del estado (`StateFlow`).
+- **Beneficio**: separación UI / lógica de presentación, alineado con las guías de Android y con lo que el documento valora (MVVM).
+
+### Gestión de estado (UI)
+
+- ** Estados sellados** (`CountriesListUiState`, `CountryDetailUiState`, etc.): cubren carga, éxito, vacío y error de forma explícita.
+- **StateFlow + `collectAsStateWithLifecycle`**: la UI solo observa flujos; menos riesgo de fugas y comportamiento correcto con el ciclo de vida.
+- **Beneficio**: cumple el requisito de “gestionar el estado” y facilita manejo de errores de red de forma visible para el usuario.
+
+### Repository + casos de uso
+
+- **Un solo repositorio** implementado en `data` que habla con API y DAO; la interfaz vive en `domain`.
+- **Casos de uso** por acción (`GetAllCountries`, `SearchCountries`, etc.): una responsabilidad por clase, reutilizable desde ViewModels.
+- **Beneficio**: reglas de negocio y puntos de entrada claros para tests y para explicar el diseño en la demo en video.
+
+### Retrofit + Gson + OkHttp
+
+- **Retrofit** modela endpoints REST de forma tipada; **Gson** deserializa DTOs; **OkHttp** logging en debug.
+- **Beneficio**: consumo de API estable y mantenible; encaja con “manejo eficiente y robusto” del PDF.
+
+### Room
+
+- **SQLite** con API declarativa; favoritos como **filas con snapshot** del país para listado y detalle sin red.
+- **Beneficio**: persistencia entre sesiones requerida por el PDF; opción adecuada frente a solo `SharedPreferences` (estructurado, consultas, offline).
+
+### Hilt
+
+- Inyección de dependencias en constructores (repositorio, DAO, API, use cases).
+- **Beneficio**: menos acoplamiento manual, módulos de red/BD claros, alineado con proyectos Android profesionales.
+
+### Jetpack Compose + Material 3 + Navigation
+
+- UI declarativa; **Navigation Compose** para rutas y argumentos; **Coil** para imágenes.
+- **Beneficio**: desarrollo rápido de pantallas y navegación alineada con el stack moderno de Android.
+
+### Corrutinas y Flow
+
+- Llamadas de red y Room en corrutinas; **Flow** para observar favoritos.
+- **Beneficio**: código asíncrono legible y sin bloquear el hilo principal.
+
+---
+
 ## Requisitos
 
 - **Android Studio** Koala (2024.1.1) o superior (recomendado)
@@ -19,17 +110,18 @@ Aplicación nativa en Kotlin que consume la API pública [REST Countries](https:
    ```
    El APK queda en `app/build/outputs/apk/debug/`.
 
-## Funcionalidad
+## Funcionalidad (resumen)
 
 | Característica | Detalle |
 |----------------|---------|
 | Listado global | `GET https://restcountries.com/v3.1/all` |
-| Búsqueda | `GET https://restcountries.com/v3.1/name/{name}?fullText=false` activa con **debounce 300 ms** cuando el texto tiene **2 o más caracteres**; con 0–1 caracteres se muestra el listado completo |
-| Detalle | Navegación por `cca3`; datos enriquecidos vía `GET https://restcountries.com/v3.1/alpha/{code}` |
-| Favoritos | Persistencia con **Room**; listado de favoritos vía `GET https://restcountries.com/v3.1/alpha?codes=...` respetando el orden guardado |
-| UI | Material 3, lista con bandera y escudo, marcador de favorito, pantalla de detalle con rejilla adaptable en pantallas anchas |
+| Búsqueda | `GET https://restcountries.com/v3.1/name/{name}?fullText=false` con **debounce 300 ms** cuando el texto tiene **2 o más caracteres**; con 0–1 caracteres se muestra el listado completo |
+| Detalle | Navegación por `cca3`; datos desde API (`v3.1/alpha/{code}`) o, si el país está en favoritos, **snapshot en Room** (offline) |
+| Favoritos | **Room** (`FavoriteCountryEntity`): se guarda el país completo para listado y detalle **sin conexión**; orden por fecha de guardado |
+| Login opcional | Pantalla de acceso con usuario/contraseña y **biometría** (`BiometricPrompt`); tras éxito, flujo principal |
+| UI | Material 3, lista con bandera y escudo, marcador de favorito, detalle con dos columnas |
 
-## Arquitectura
+## Arquitectura (resumen)
 
 - **Clean Architecture** en capas: `data` (Retrofit, Room, DTOs, mappers), `domain` (modelos, contratos de repositorio, casos de uso), `presentation` (Compose, ViewModels, navegación).
 - **MVVM** con **StateFlow** y corrutinas.
@@ -104,6 +196,8 @@ Inventario de lo utilizado para construir el proyecto (versiones según `gradle/
 | **Gson** | 2.11.0 | JSON (usado por el converter de Retrofit) |
 | **Room Runtime** | 2.6.1 | Base de datos local |
 | **Room KTX** | 2.6.1 | Extensiones Kotlin y corrutinas para Room |
+| **Biometric** (AndroidX) | 1.1.0 | `BiometricPrompt` / `BiometricManager` (login opcional) |
+| **Fragment KTX** | 1.8.5 | `FragmentActivity` para biometría |
 | **Coil Compose** | 2.7.0 | Carga de imágenes (banderas, escudos) |
 | **Kotlinx Coroutines Android** | 1.9.0 | Corrutinas en el hilo principal / background |
 
@@ -174,7 +268,7 @@ Inventario de lo utilizado para construir el proyecto (versiones según `gradle/
 
 - `data.remote` — DTOs y `CountriesApiService`
 - `data.local` — `FavoriteCountryEntity` (snapshot offline), `FavoriteDao`, `CountriesDatabase`
-- `data.mapper` — `CountryMapper`
+- `data.mapper` — `CountryMapper`, `FavoriteCountryEntityMapper`
 - `data.repository` — `CountriesRepositoryImpl`
 - `domain.model`, `domain.repository`, `domain.usecase`
 - `presentation.navigation`, `presentation.screens`, `presentation.components`, `presentation.viewmodel`, `presentation.state`
@@ -185,12 +279,13 @@ Inventario de lo utilizado para construir el proyecto (versiones según `gradle/
 - Listas: `Loading`, `Success`, `Empty`, `Error` (`CountriesListUiState`).
 - Detalle: `Loading`, `Success`, `Error` (`CountryDetailUiState`).
 
-## Decisiones técnicas breves
+## Decisiones técnicas adicionales
 
-- **Búsqueda**: debounce en el ViewModel para no saturar la red; umbral de 2 caracteres alineado con el enunciado.
+- **Búsqueda**: debounce en el ViewModel para no saturar la red; umbral de 2 caracteres según el PDF.
 - **404 en búsqueda**: tratado como lista vacía (comportamiento habitual de REST Countries).
-- **Favoritos**: solo se guarda el `cca3` en Room; los datos mostrados se refrescan desde la API para mantener consistencia con el backend.
+- **Favoritos**: snapshot completo del país en Room para cumplir persistencia y uso offline; el listado de favoritos no depende de la API en tiempo real.
 - **Errores de red**: mensajes legibles vía `IOException` / `HttpException` en el repositorio.
+- **Favoritos (UI)**: recarga desde Room sin forzar `Loading` en cada `refresh` para reducir parpadeo al cambiar de pestaña o volver del detalle.
 
 ## Licencia y créditos
 

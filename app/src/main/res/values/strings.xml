@@ -31,6 +31,8 @@
     <string name="tab_favorites">Favorites</string>
 
     <string name="search_placeholder">Search</string>
+    <string name="voice_search_prompt">Di el nombre de un país</string>
+    <string name="voice_search_not_available">No hay reconocimiento de voz disponible en este dispositivo.</string>
 
     <string name="empty_countries">No countries match your search.</string>
     <string name="empty_favorites">No favorites yet. Add countries from the list or detail screen.</string>
